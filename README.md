@@ -1,3 +1,3 @@
 # projektsheet_19
 
-A new Flutter project.
+Eine Zitate App für Projekt 19
