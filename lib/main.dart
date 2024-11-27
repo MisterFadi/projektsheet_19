@@ -1,11 +1,37 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+  @override
+  State<MainApp> createState() => MainAppState();
+}
+
+class MainAppState extends State<MainApp> {
+  String quote = "Nach der Erschwernis kommt die Erleichterung.";
+  String author = "Unbekannt";
+  Future<void> getQuote() async {
+    final response = await http
+        .get(Uri.parse("https://api.api-ninjas.com/v1/quotes"), headers: {
+      "X-Api-Key": "TCAAb4cq3cwstW2Uu557Qg==Ze7vbcmWa26QkDNv",
+    });
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        quote = data[0]["quote"];
+        author = data[0]["author"];
+      });
+    } else {
+      throw Exception("Failed Quote");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,14 +50,16 @@ class MainApp extends StatelessWidget {
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Center(
+            const SizedBox(height: 80),
+            Center(
               child: Padding(
-                padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  "Die besten Dinge im Leben sind nicht die, die man für Geld bekommt",
+                  quote,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 23,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -40,11 +68,21 @@ class MainApp extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            Text(
+              author,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            const Expanded(child: SizedBox()),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: getQuote,
               child: const Text(
-                "Nächstes Zitat",
+                "Nächstes Zitat habibi 🔄",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -53,6 +91,9 @@ class MainApp extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(
+              height: 120,
+            )
           ],
         ),
       ),
