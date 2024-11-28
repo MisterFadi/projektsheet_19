@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MainApp());
@@ -14,8 +15,11 @@ class MainApp extends StatefulWidget {
 }
 
 class MainAppState extends State<MainApp> {
-  String quote = "Nach der Erschwernis kommt die Erleichterung.";
-  String author = "Unbekannt";
+  final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+
+  String quote = "Mit großer Kraft wächst auch der Bizeps";
+  String author = "Spiderman Teil 1";
+
   Future<void> getQuote() async {
     final response = await http
         .get(Uri.parse("https://api.api-ninjas.com/v1/quotes"), headers: {
