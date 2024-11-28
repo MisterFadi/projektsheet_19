@@ -2,21 +2,26 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:projektsheet_19/database_repository.dart';
+import 'package:projektsheet_19/shared_preferences_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(const MainApp());
+  final DatabaseRepository repository = SharedPreferencesRepository();
+  runApp(MainApp(
+    repository: repository,
+  ));
 }
 
 class MainApp extends StatefulWidget {
-  const MainApp({super.key});
+  const MainApp({super.key, required this.repository});
+
+  final DatabaseRepository repository;
   @override
   State<MainApp> createState() => MainAppState();
 }
 
 class MainAppState extends State<MainApp> {
-  final SharedPreferencesAsync prefs = SharedPreferencesAsync();
-
   String quote = "Mit großer Kraft wächst auch der Bizeps";
   String author = "Spiderman Teil 1";
 
@@ -31,9 +36,19 @@ class MainAppState extends State<MainApp> {
         quote = data[0]["quote"];
         author = data[0]["author"];
       });
-    } else {
-      throw Exception("Failed Quote");
+      widget.repository.addItem(quote);
+      widget.repository.addItem(author);
     }
+  }
+
+  Future<void> deleteQuote() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove("quote");
+    prefs.remove("author");
+    setState(() {
+      quote = "Mit großer Kraft wächst auch der Bizeps";
+      author = "Spiderman Teil 1";
+    });
   }
 
   @override
@@ -56,7 +71,7 @@ class MainAppState extends State<MainApp> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 80),
+            const SizedBox(height: 30),
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -96,7 +111,22 @@ class MainAppState extends State<MainApp> {
               ),
             ),
             const SizedBox(
-              height: 120,
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: deleteQuote,
+              child: const Text(
+                "Letztes Zitat löschen ♻️",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 100,
             )
           ],
         ),
